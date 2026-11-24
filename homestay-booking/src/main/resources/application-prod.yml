@@ -1,0 +1,36 @@
+# 生产环境配置
+# 启动方式：java -jar homestay-booking-0.0.1-SNAPSHOT.jar --spring.profiles.active=prod
+# 所有敏感项都通过环境变量注入，未提供时会启动失败，避免误用开发默认值
+server:
+  port: ${SERVER_PORT:8080}
+
+spring:
+  datasource:
+    url: ${DB_URL:jdbc:mysql://localhost:3306/homestay?useUnicode=true&characterEncoding=utf8&serverTimezone=Asia/Shanghai&useSSL=false&allowPublicKeyRetrieval=true}
+    username: ${DB_USERNAME:homestay_app}
+    password: ${DB_PASSWORD}
+  sql:
+    init:
+      # 表结构脚本内全部是 IF NOT EXISTS，可反复执行
+      mode: always
+      schema-locations: classpath:db/schema.sql
+      encoding: UTF-8
+
+mybatis-plus:
+  configuration:
+    # 生产环境不打印 SQL
+    log-impl: org.apache.ibatis.logging.nologging.NoLoggingImpl
+
+app:
+  jwt:
+    # 必须注入，且不少于 32 字节
+    secret: ${JWT_SECRET}
+    expire-minutes: ${JWT_EXPIRE_MINUTES:1440}
+  seed:
+    enabled: false
+
+logging:
+  level:
+    com.homestay: info
+  file:
+    name: ${LOG_FILE:logs/homestay-booking.log}
